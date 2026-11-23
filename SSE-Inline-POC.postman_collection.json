@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "b2643c5d-21ca-4a34-8ef7-8e77384724da",
+    "name": "FSL SSE Inline POC",
+    "description": "Local POC for an SSE GET stream and in-process event publishing in the Integration FSL microservice.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "pocKey",
+      "value": "replace-with-FSL_SSE_POC_SECRET"
+    },
+    {
+      "key": "userId",
+      "value": "user-101"
+    },
+    {
+      "key": "deviceId",
+      "value": "device-101"
+    },
+    {
+      "key": "channel",
+      "value": "IMOBILE"
+    },
+    {
+      "key": "userIdType",
+      "value": "UID"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Open SSE stream",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          },
+          {
+            "key": "X-SSE-POC-KEY",
+            "value": "{{pocKey}}"
+          },
+          {
+            "key": "userid",
+            "value": "{{userId}}"
+          },
+          {
+            "key": "userid_type",
+            "value": "{{userIdType}}"
+          },
+          {
+            "key": "deviceid",
+            "value": "{{deviceId}}"
+          },
+          {
+            "key": "channel",
+            "value": "{{channel}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/fsl/sse/stream"
+        },
+        "description": "Run this first and keep it open. Expected Content-Type: text/event-stream; first event name: connected."
+      },
+      "response": []
+    },
+    {
+      "name": "2 - Publish demo event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-SSE-POC-KEY",
+            "value": "{{pocKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"eventType\": \"DEMO_NOTIFICATION\",\n  \"correlationId\": \"postman-demo-001\",\n  \"payload\": {\n    \"message\": \"Hello from the Integration microservice SSE publisher\",\n    \"status\": \"COMPLETED\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sse-poc/events"
+        },
+        "description": "POC-only trigger. Calls SsePocEventService, which autowires SseEventPublisher and publishes to the user connected in request 1."
+      },
+      "response": []
+    }
+  ]
+}
